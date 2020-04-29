@@ -6,7 +6,6 @@ class CustomGoogleSearch extends Component {
     this.state = { searchResults: [] };
   }
   componentDidUpdate(prevProps, prevState) {
-    debugger;
     if (prevState.searchResults !== this.state.searchResults) {
     }
   }
@@ -18,7 +17,7 @@ class CustomGoogleSearch extends Component {
   };
   componentDidMount() {
     (function () {
-      var cx = CX;
+      var cx = CX; //private cx code obtained from Google CSE control panel https://cse.google.com/cse/all
       var gcse = document.createElement("script");
       gcse.type = "text/javascript";
       gcse.async = true;
@@ -48,16 +47,3 @@ class CustomGoogleSearch extends Component {
 }
 
 export default CustomGoogleSearch;
-
-// export const myResultsReadyCallback = (
-//   name,
-//   q,
-//   promos,
-//   results,
-//   resultsDiv
-// ) => {
-//   if (results) {
-//     console.log(results);
-//     return results;
-//   }
-// };
