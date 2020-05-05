@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactDOM from "react-dom";
 import { CX } from "./Config";
 
 const GNAME = "danskMedierOnly";
@@ -75,7 +76,11 @@ class CustomGoogleSearch extends Component {
       .querySelector("div.gsc-webResult.gsc-result")
       .appendChild(fragment);
 
-    this.setState({ forceRender: true });
+    const rootEle = document.getElementById("root");
+
+    ReactDOM.hydrate(<CustomGoogleSearch />, rootEle);
+
+    //this.setState({ forceRender: true });
 
     // var pageId = document.getElementById("pagination");
     // if (pageId) pageId.innerHTML = "";
