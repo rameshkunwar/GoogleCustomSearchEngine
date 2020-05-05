@@ -1,14 +1,31 @@
 import React, { Component } from "react";
 import { CX } from "./Config";
+
+const GNAME = "danskMedierOnly";
 class CustomGoogleSearch extends Component {
   constructor(props) {
     super(props);
-    this.state = { searchResults: [] };
+    this.state = { searchResults: [], searchString: "", forceRender: false };
+    this.inputRef = React.createRef();
   }
+
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchResults !== this.state.searchResults) {
+    if (prevState.searchString !== this.state.searchString) {
+      // eslint-disable-next-line no-use-before-define
+      // const googleObj = google.search.cse;
+      // if (googleObj) {
+      /*eslint-disable no-undef*/
+
+      const ele = google.search.cse.element.getElement(GNAME);
+      if (ele) ele.execute(this.state.searchString);
+      //}
     }
   }
+
+  handleSearch = (e) => {
+    e.preventDefault();
+    this.setState({ searchString: this.inputRef.current.value });
+  };
   myResultsReadyCallback = (name, q, promos, results, resultsDiv) => {
     if (results) {
       console.log(results);
@@ -38,16 +55,48 @@ class CustomGoogleSearch extends Component {
     return [anchor, span];
   };
 
-  handleOnRederCallback = (a, b, c, d) => {
-    debugger;
-    var arr = document.getElementsByClassName("gsc-cursor-page");
-    var toBeinsertedDiv = document.getElementById("pagination");
-    if (toBeinsertedDiv) {
-      toBeinsertedDiv.innerHTML = "";
-      for (let i = 0; i < arr.length; i++) {
-        toBeinsertedDiv.append(arr[i]);
-      }
+  handleOnRederCallback = (a, b, c, d, e, f) => {
+    //let's insert a newly created node after gsc-result as it's first child
+    const newEle = document.createElement("div");
+    newEle.classList.add("my-custom-results");
+    const ref = document.querySelector("div.gsc-result");
+    if (ref) {
+      ref.parentNode.insertBefore(newEle, ref.nextSibling);
     }
+
+    const eleToBeCloned = document.querySelector(
+      "div.my-dummy-results-placeholder"
+    );
+    const clone = eleToBeCloned.cloneNode(true);
+
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(clone);
+    document
+      .querySelector("div.gsc-webResult.gsc-result")
+      .appendChild(fragment);
+
+    this.setState({ forceRender: true });
+
+    // var pageId = document.getElementById("pagination");
+    // if (pageId) pageId.innerHTML = "";
+    // var arr = document.getElementsByClassName("gsc-cursor-page");
+    // var toBeinsertedDiv = document.getElementById("pagination");
+    // if (toBeinsertedDiv) {
+    //   toBeinsertedDiv.innerHTML = "";
+    //   for (let i = 0; i < arr.length; i++) {
+    //     toBeinsertedDiv.append(arr[i]);
+    //   }
+    // }
+  };
+  myWebStartingCallback = (gname, query) => {
+    // const ele = google.search.cse.element.getElement(gname);
+    // if (ele) {
+    //   // ele.execute()
+    // }
+    return query;
+  };
+  handleTitleClick = (e) => {
+    console.warn("handleTitleClick, i am working!");
   };
 
   componentDidMount() {
@@ -55,7 +104,7 @@ class CustomGoogleSearch extends Component {
       var cx = CX; //private cx code obtained from Google CSE control panel https://cse.google.com/cse/all
       var gcse = document.createElement("script");
       gcse.type = "text/javascript";
-      gcse.async = true;
+      gcse.async = false;
       gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
       var s = document.getElementsByTagName("script")[0];
 
@@ -65,6 +114,7 @@ class CustomGoogleSearch extends Component {
     window.__gcse || (window.__gcse = {});
     window.__gcse.searchCallbacks = {
       web: {
+        starting: this.myWebStartingCallback,
         ready: this.myResultsReadyCallback,
         rendered: this.handleOnRederCallback,
       },
@@ -75,13 +125,36 @@ class CustomGoogleSearch extends Component {
     return (
       <React.Fragment>
         {/* <div className='gcse-searchresults-only'></div> */}
-        <div className='gcse-search' data-queryparametername='search'></div>
-        <div className='gcse-searchresults'>
+        {/* <div className='gcse-search' data-queryparametername='search'></div> */}
+        <div className='input-field'>
+          <input ref={this.inputRef} type='text' name='search' />
+          <button
+            className='btn btn-primary'
+            onClick={(e) => this.handleSearch(e)}
+          >
+            search
+          </button>
+        </div>
+        <div
+          className='gcse-searchresults-only'
+          data-defaulttorefinement='dansk-medier'
+          data-gname='danskMedierOnly'
+        >
+          {/* <div
+            id='pagination'
+            className='pagination'
+            style={{ marginTop: "3rem" }}
+          ></div> */}
+        </div>
+        <div id='customResult-dummy' className='my-dummy-results-placeholder'>
           {this.state.searchResults &&
             this.state.searchResults.map((item, index) => {
               return (
                 <div className='search-container d-inline' key={index}>
-                  <div className='d-inline title'>
+                  <div
+                    className='d-inline title'
+                    onClick={(e) => this.handleTitleClick(e)}
+                  >
                     {" "}
                     {item.titleNoFormatting}{" "}
                   </div>
@@ -93,20 +166,10 @@ class CustomGoogleSearch extends Component {
                 </div>
               );
             })}
-          <div
-            id='pagination'
-            className='pagination'
-            style={{ marginTop: "3rem" }}
-          ></div>
         </div>
       </React.Fragment>
     );
   }
 }
-
-const handleClick = (evt) => {
-  debugger;
-  console.log("handled clicked!");
-};
 
 export default CustomGoogleSearch;
