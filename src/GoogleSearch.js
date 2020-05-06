@@ -8,7 +8,7 @@ class CustomGoogleSearch extends Component {
     this.state = {
       searchResults: [],
       searchString: "",
-      forceRender: false,
+      mouseoverDivId: "",
       isDropdownVisible: false,
     };
     this.inputRef = React.createRef();
@@ -110,7 +110,14 @@ class CustomGoogleSearch extends Component {
   };
   handleMouseEnter = (event) => {
     event.preventDefault();
-    this.setState({ isDropdownVisible: true });
+
+    const currentBlockId = event.currentTarget.getAttribute("id");
+    if (currentBlockId) {
+      this.setState({
+        isDropdownVisible: true,
+        mouseoverDivId: currentBlockId,
+      });
+    }
   };
   handleMouseLeave = (event) => {
     this.setState({ isDropdownVisible: false });
@@ -179,53 +186,54 @@ class CustomGoogleSearch extends Component {
           {this.state.searchResults &&
             this.state.searchResults.map((item, index) => {
               return (
-                <div className='search-container ' key={index}>
+                <div
+                  id={`listCard${index}`}
+                  key={index}
+                  className='list-card'
+                  ref={this.buttonDivRef}
+                  onMouseEnter={this.handleMouseEnter}
+                  onMouseLeave={this.handleMouseLeave}
+                >
                   <div
-                    className='list-card'
-                    ref={this.buttonDivRef}
-                    onMouseEnter={this.handleMouseEnter}
-                    onMouseLeave={this.handleMouseLeave}
+                    className=' title search-result--title list-card--headline card-text'
+                    onClick={(e) => this.handleTitleClick(e)}
                   >
-                    <div
-                      className=' title search-result--title list-card--headline card-text'
-                      onClick={(e) => this.handleTitleClick(e)}
-                    >
-                      {" "}
-                      {item.titleNoFormatting}{" "}
-                    </div>
-                    <div className='url'>
-                      <a href={item.url} className='article-link'>
-                        {item.visibleUrl}
-                      </a>
-                    </div>
-                    <div className='list-header--description card-text'>
-                      {item.contentNoFormatting}
-                    </div>
-                    <div className='list-header--icon-link-placeholder d-flex justify-content-between'>
-                      <div className='list-header--icon-link-placeholder__identifier-source d-inline-flex'>
-                        <div className='list-header--time d-flex align-self-center small'>
-                          I dag 10:58
-                        </div>
+                    {" "}
+                    {item.titleNoFormatting}{" "}
+                  </div>
+                  <div className='url'>
+                    <a href={item.url} className='article-link'>
+                      {item.visibleUrl}
+                    </a>
+                  </div>
+                  <div className='list-header--description card-text'>
+                    {item.contentNoFormatting}
+                  </div>
+                  <div className='list-header--icon-link-placeholder d-flex justify-content-between'>
+                    <div className='list-header--icon-link-placeholder__identifier-source d-inline-flex'>
+                      <div className='list-header--time d-flex align-self-center small'>
+                        I dag 10:58
                       </div>
-                      <div className='d-inline-flex post-it-text-and-button'>
-                        <div
-                          className={`${
-                            this.state.isDropdownVisible
-                              ? "visible"
-                              : "invisible"
-                          }`}
+                    </div>
+                    <div className='d-inline-flex post-it-text-and-button'>
+                      <div
+                        className={`${
+                          this.state.isDropdownVisible &&
+                          this.state.mouseoverDivId === `listCard${index}`
+                            ? "visible"
+                            : "invisible"
+                        }`}
+                      >
+                        <button
+                          id='artId-bb91ef20'
+                          className='btn btn-sm btn-primary dropdown-toggle list-card--save-link-gem-btn'
+                          type='button'
+                          data-toggle='dropdown'
+                          aria-haspopup='true'
+                          aria-expanded='false'
                         >
-                          <button
-                            id='artId-bb91ef20'
-                            className='btn btn-sm btn-primary dropdown-toggle list-card--save-link-gem-btn'
-                            type='button'
-                            data-toggle='dropdown'
-                            aria-haspopup='true'
-                            aria-expanded='false'
-                          >
-                            Gem
-                          </button>
-                        </div>
+                          Gem
+                        </button>
                       </div>
                     </div>
                   </div>
