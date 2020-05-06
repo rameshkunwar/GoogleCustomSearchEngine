@@ -177,11 +177,6 @@ class CustomGoogleSearch extends Component {
             search
           </button>
         </div>
-        <div
-          className='gcse-searchresults-only'
-          data-defaulttorefinement='dansk-medier'
-          data-gname='danskMedierOnly'
-        ></div>
         <div id='customResult-dummy' className='my-dummy-results-placeholder'>
           {this.state.searchResults &&
             this.state.searchResults.map((item, index) => {
@@ -241,6 +236,11 @@ class CustomGoogleSearch extends Component {
               );
             })}
         </div>
+        <div
+          className='gcse-searchresults-only'
+          data-defaulttorefinement='dansk-medier'
+          data-gname='danskMedierOnly'
+        ></div>
       </React.Fragment>
     );
   }
