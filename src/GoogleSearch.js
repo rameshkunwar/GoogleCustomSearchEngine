@@ -5,8 +5,14 @@ const GNAME = "danskMedierOnly";
 class CustomGoogleSearch extends Component {
   constructor(props) {
     super(props);
-    this.state = { searchResults: [], searchString: "", forceRender: false };
+    this.state = {
+      searchResults: [],
+      searchString: "",
+      forceRender: false,
+      isDropdownVisible: false,
+    };
     this.inputRef = React.createRef();
+    this.buttonDivRef = React.createRef();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -64,18 +70,36 @@ class CustomGoogleSearch extends Component {
     //   ref.parentNode.insertBefore(newEle, ref.nextSibling);
     // }
 
-    const eleToBeCloned = document.querySelector(
-      "div.my-dummy-results-placeholder"
+    // const eleToBeCloned = document.querySelector(
+    //   "div.my-dummy-results-placeholder"
+    // );
+    // const clone = eleToBeCloned.cloneNode(true);
+
+    // clone.id = "cloneSearchResultParent";
+
+    // const fragment = document.createDocumentFragment();
+    // fragment.appendChild(clone);
+    // document
+    //   .querySelector("div.gsc-webResult.gsc-result")
+    //   .appendChild(fragment);
+
+    // const divEle = document.getElementById("cloneSearchResultParent");
+    // if (divEle) {
+    //   divEle.addEventListener("mouseenter", this.handleMouseEnterOnDiv, true);
+    // }
+
+    //hide ads
+    const adBlock = document.querySelector(".gsc-adBlock");
+    if (adBlock) {
+      adBlock.style.display = "none";
+    }
+
+    const googleBranding = document.querySelector(
+      ".gcsc-more-maybe-branding-root"
     );
-    const clone = eleToBeCloned.cloneNode(true);
-
-    clone.id = "cloneSearchResultParent";
-
-    const fragment = document.createDocumentFragment();
-    fragment.appendChild(clone);
-    document
-      .querySelector("div.gsc-webResult.gsc-result")
-      .appendChild(fragment);
+    if (googleBranding) {
+      googleBranding.style.display = "none";
+    }
   };
   myWebStartingCallback = (gname, query) => {
     //here we can modify query with other parameters such as after: before: etc
@@ -83,6 +107,13 @@ class CustomGoogleSearch extends Component {
   };
   handleTitleClick = (e) => {
     console.warn("handleTitleClick, i am working!");
+  };
+  handleMouseEnter = (event) => {
+    event.preventDefault();
+    this.setState({ isDropdownVisible: true });
+  };
+  handleMouseLeave = (event) => {
+    this.setState({ isDropdownVisible: false });
   };
 
   componentDidMount() {
@@ -112,13 +143,17 @@ class CustomGoogleSearch extends Component {
   handleClickOnNewAddedList = (event) => {
     if (!event.target.closest("#cloneSearchResultParent")) return;
     const clickedItem = event.target;
-    if (clickedItem.classList.contains("d-inline")) {
+    if (clickedItem.classList.contains("search-result--title")) {
       console.warn("new event listener works!");
     }
   };
 
   componentWillUnmount() {
-    document.removeEventListener("click", this.handleClickOnNewAddedList);
+    document.removeEventListener(
+      "click",
+      this.handleClickOnNewAddedList,
+      false
+    );
   }
 
   render() {
@@ -139,29 +174,60 @@ class CustomGoogleSearch extends Component {
           className='gcse-searchresults-only'
           data-defaulttorefinement='dansk-medier'
           data-gname='danskMedierOnly'
-        >
-          {/* <div
-            id='pagination'
-            className='pagination'
-            style={{ marginTop: "3rem" }}
-          ></div> */}
-        </div>
+        ></div>
         <div id='customResult-dummy' className='my-dummy-results-placeholder'>
           {this.state.searchResults &&
             this.state.searchResults.map((item, index) => {
               return (
-                <div className='search-container d-inline' key={index}>
+                <div className='search-container ' key={index}>
                   <div
-                    className='d-inline title'
-                    onClick={(e) => this.handleTitleClick(e)}
+                    className='list-card'
+                    ref={this.buttonDivRef}
+                    onMouseEnter={this.handleMouseEnter}
+                    onMouseLeave={this.handleMouseLeave}
                   >
-                    {" "}
-                    {item.titleNoFormatting}{" "}
-                  </div>
-                  <div className='d-inline url'>
-                    <a href={item.url} className='article-link'>
-                      {item.visibleUrl}
-                    </a>
+                    <div
+                      className=' title search-result--title list-card--headline card-text'
+                      onClick={(e) => this.handleTitleClick(e)}
+                    >
+                      {" "}
+                      {item.titleNoFormatting}{" "}
+                    </div>
+                    <div className='url'>
+                      <a href={item.url} className='article-link'>
+                        {item.visibleUrl}
+                      </a>
+                    </div>
+                    <div className='list-header--description card-text'>
+                      {item.contentNoFormatting}
+                    </div>
+                    <div className='list-header--icon-link-placeholder d-flex justify-content-between'>
+                      <div className='list-header--icon-link-placeholder__identifier-source d-inline-flex'>
+                        <div className='list-header--time d-flex align-self-center small'>
+                          I dag 10:58
+                        </div>
+                      </div>
+                      <div className='d-inline-flex post-it-text-and-button'>
+                        <div
+                          className={`${
+                            this.state.isDropdownVisible
+                              ? "visible"
+                              : "invisible"
+                          }`}
+                        >
+                          <button
+                            id='artId-bb91ef20'
+                            className='btn btn-sm btn-primary dropdown-toggle list-card--save-link-gem-btn'
+                            type='button'
+                            data-toggle='dropdown'
+                            aria-haspopup='true'
+                            aria-expanded='false'
+                          >
+                            Gem
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
